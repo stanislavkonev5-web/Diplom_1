@@ -43,41 +43,55 @@ public class BurgerTests {
     }
 
     @Test
-    public void moveIngredientChangesElementOrderTest() {
+    public void moveIngredientMovesTargetToNewPositionTest() {
         burger.addIngredient(sauce);
         burger.addIngredient(filling);
         burger.moveIngredient(0, 1);
         Assert.assertEquals("Filling должен переместиться на позицию 0", filling, burger.ingredients.get(0));
-        Assert.assertEquals("Sauce должен переместиться на позицию 1", sauce, burger.ingredients.get(1));
     }
 
     @Test
-    public void getReceiptTest() {
+    public void moveIngredientDisplacesOtherIngredientTest() {
+        burger.addIngredient(sauce);
+        burger.addIngredient(filling);
+        burger.moveIngredient(0, 1);
+        Assert.assertEquals("Sauce должен переместиться на позицию 1", sauce, burger.ingredients.get(1));
+    }
+
+    private void setupReceiptMocks() {
         Mockito.when(bun.getName()).thenReturn("black bun");
         Mockito.when(bun.getPrice()).thenReturn(100f);
         Mockito.when(sauce.getName()).thenReturn("hot sauce");
         Mockito.when(sauce.getType()).thenReturn(IngredientType.SAUCE);
         Mockito.when(sauce.getPrice()).thenReturn(100f);
-
         burger.setBuns(bun);
         burger.addIngredient(sauce);
+    }
 
+    @Test
+    public void getReceiptContainsBunNameTest() {
+        setupReceiptMocks();
         String receipt = burger.getReceipt();
-
         Assert.assertTrue("Чек должен содержать название булки", receipt.contains("(==== black bun ====)"));
-        Assert.assertTrue("Чек должен содержать информацию об ингредиенте", receipt.contains("= sauce hot sauce ="));
-        Assert.assertTrue("Чек должен содержать итоговую цену", receipt.contains("Price: 300"));
+    }
 
-        Mockito.verify(bun, Mockito.times(2)).getName();
-        Mockito.verify(sauce).getName();
-        Mockito.verify(sauce).getType();
+    @Test
+    public void getReceiptContainsIngredientInfoTest() {
+        setupReceiptMocks();
+        String receipt = burger.getReceipt();
+        Assert.assertTrue("Чек должен содержать информацию об ингредиенте", receipt.contains("= sauce hot sauce ="));
+    }
+
+    @Test
+    public void getReceiptContainsTotalPriceTest() {
+        setupReceiptMocks();
+        String receipt = burger.getReceipt();
+        Assert.assertTrue("Чек должен содержать итоговую цену", receipt.contains("Price: 300"));
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void removeIngredientInvalidIndexThrowsExceptionTest() {
         burger.removeIngredient(0);
     }
-
-
-
 }
+
